@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "nx-gradle",
+  "version": "0.0.1",
+  "generators": {
+    "nx-gradle": {
+      "factory": "./src/generators/nx-gradle/generator",
+      "schema": "./src/generators/nx-gradle/schema.json",
+      "description": "nx-gradle generator"
+    }
+  }
+}

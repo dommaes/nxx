@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "nx-gradle": "packages/nx-gradle",
+    "nx-gradle-e2e": "e2e/nx-gradle-e2e"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "root": "packages/nx-gradle",
+  "sourceRoot": "packages/nx-gradle/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/nx-gradle/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/nx-gradle"],
+      "options": {
+        "jestConfig": "packages/nx-gradle/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/nx-gradle",
+        "tsConfig": "packages/nx-gradle/tsconfig.lib.json",
+        "packageJson": "packages/nx-gradle/package.json",
+        "main": "packages/nx-gradle/src/index.ts",
+        "assets": [
+          "packages/nx-gradle/*.md",
+          {
+            "input": "./packages/nx-gradle/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/nx-gradle/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/nx-gradle",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/nx-gradle",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}
