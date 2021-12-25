@@ -2,11 +2,11 @@ import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nrwl/devkit';
 
 import generator from './generator';
-import { NxGradleGeneratorSchema } from './schema';
+import { InitGeneratorSchema } from './schema';
 
-describe('nx-gradle generator', () => {
+describe('init generator', () => {
   let appTree: Tree;
-  const options: NxGradleGeneratorSchema = { name: 'test' };
+  const options: InitGeneratorSchema = { name: 'test' };
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace();
