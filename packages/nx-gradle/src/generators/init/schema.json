@@ -8,9 +8,10 @@
     "dsl": {
       "description": "Sets the DSL",
       "type": "string",
+      "enum": ["kotlin", "groovy"],
       "default": "kotlin",
       "x-prompt": {
-        "message": "Which DSL would you like to use?",
+        "message": "The DSL to use for Gradle configuration.",
         "type": "list",
         "items": [
           {
@@ -25,9 +26,19 @@
       }
     },
     "rootProjectName": {
+      "description": "The Gradle root project name.",
       "type": "string",
-      "description": "Sets the root project name",
       "pattern": "^[a-zA-Z].*"
+    },
+    "useInstalledGradle": {
+      "description": "Use Gradle installed on this machine",
+      "type": "boolean",
+      "default": false
+    },
+    "gradleVersion": {
+      "description": "The Gradle version",
+      "type": "string",
+      "pattern": "^\\d\\.\\d\\.\\d$"
     }
   },
   "required": ["dsl"]
