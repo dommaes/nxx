@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "dommaes/nx-gradle": ["packages/nx-gradle/src/index.ts"]
+      "nxx/nx-gradle": ["packages/nx-gradle/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,5 +1,5 @@
 {
-  "name": "dommaes",
+  "name": "nxx",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -10,12 +10,12 @@
   "private": true,
   "dependencies": {
     "@octokit/rest": "18.12.0",
+    "eslint-plugin-import": "2.25.3",
     "eslint-plugin-prettier": "4.0.0",
-    "node-fetch": "3.1.0",
+    "node-fetch": "2.6.6",
     "tslib": "2.3.1"
   },
   "devDependencies": {
-    "@angular-devkit/schematics": "13.1.2",
     "@nrwl/cli": "13.4.1",
     "@nrwl/devkit": "13.4.1",
     "@nrwl/eslint-plugin-nx": "13.4.1",
@@ -28,8 +28,9 @@
     "@octokit/types": "6.34.0",
     "@types/jest": "27.0.3",
     "@types/node": "16.11.7",
+    "@types/node-fetch": "2.5.12",
     "@typescript-eslint/eslint-plugin": "5.8.0",
-    "@typescript-eslint/parser": "5.3.1",
+    "@typescript-eslint/parser": "5.8.0",
     "eslint": "8.5.0",
     "eslint-config-prettier": "8.3.0",
     "jest": "27.4.5",
