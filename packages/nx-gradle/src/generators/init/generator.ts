@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import * as path from 'path';
+import { join } from 'path';
 import { promisify } from 'util';
 
 import {
@@ -34,7 +34,7 @@ export default async function gradleInitGenerator(tree: Tree, options: InitGener
   await formatFiles(tree);
 }
 
-export function normalizeOptions(tree: Tree, options: InitGeneratorSchema): NormalizedSchema {
+function normalizeOptions(tree: Tree, options: InitGeneratorSchema): NormalizedSchema {
   const gradleFileExtension = options.dsl === 'kotlin' ? '.kts' : '';
   const rootProjectName = options.rootProjectName ?? tree.root.substring(tree.root.lastIndexOf('/') + 1);
 
@@ -45,7 +45,7 @@ export function normalizeOptions(tree: Tree, options: InitGeneratorSchema): Norm
   };
 }
 
-export function updateWorkspaceConfig(tree: Tree, options: NormalizedSchema): void {
+function updateWorkspaceConfig(tree: Tree, options: NormalizedSchema): void {
   const workspace = readWorkspaceConfiguration(tree);
 
   workspace.generators = workspace.generators ?? {};
@@ -67,28 +67,29 @@ export function updateWorkspaceConfig(tree: Tree, options: NormalizedSchema): vo
   setDefaultCollection(tree, '@nxx/nx-gradle');
 }
 
-export function updateGitIgnore(tree: Tree): void {
+function updateGitIgnore(tree: Tree): void {
   if (!tree.exists('.gitignore')) {
     logger.warn(`Couldn't find .gitignore file to update`);
     return;
   }
 
   let gitignore = tree.read('.gitignore', 'utf-8');
-  console.log(gitignore);
 
-  ['.gradle', '!gradle-wrapper.jar'].forEach((entry) => {
+  ['.gradle', '!gradle-wrapper.jar'].forEach((entry, i, arr) => {
     const regex = new RegExp(`^${entry}$`, 'gm');
     if (!regex.test(gitignore)) {
-      gitignore = `${gitignore}\n${entry}\n`;
-      console.log(gitignore);
+      gitignore += `\n${entry}`;
+
+      if (i === arr.length - 1) {
+        gitignore += '\n';
+      }
     }
   });
 
-  console.log(gitignore);
   tree.write('.gitignore', gitignore);
 }
 
-export function updateEditorConfig(tree: Tree, options: NormalizedSchema): void {
+function updateEditorConfig(tree: Tree, options: NormalizedSchema): void {
   if (!tree.exists('.editorconfig')) {
     logger.warn(`Couldn't find .editorconfig file to update`);
     return;
@@ -100,13 +101,13 @@ export function updateEditorConfig(tree: Tree, options: NormalizedSchema): void 
   const hasGradleDslSection = editorconfig.includes(gradleDslSectionMarker);
 
   if (!hasGradleDslSection) {
-    editorconfig = `${editorconfig}\n${gradleDslSectionMarker}\nindent_size = 4\n`;
+    editorconfig += `\n${gradleDslSectionMarker}\nindent_size = 4\n`;
   }
 
   tree.write('.editorconfig', editorconfig);
 }
 
-export async function addFiles(tree: Tree, options: NormalizedSchema): Promise<void> {
+async function addFiles(tree: Tree, options: NormalizedSchema): Promise<void> {
   const templateOptions = {
     ...options,
     quote: options.dsl === 'kotlin' ? '"' : "'",
@@ -114,12 +115,12 @@ export async function addFiles(tree: Tree, options: NormalizedSchema): Promise<v
     template: '',
   };
 
-  generateFiles(tree, path.join(__dirname, 'files'), '', templateOptions);
+  generateFiles(tree, join(__dirname, 'files'), '', templateOptions);
 
   await createGradleWrapper(tree, options);
 }
 
-export async function createGradleWrapper(tree: Tree, options: NormalizedSchema): Promise<void> {
+async function createGradleWrapper(tree: Tree, options: NormalizedSchema): Promise<void> {
   if (options.useInstalledGradle) {
     await execGradleWrapper(options);
     return;
@@ -133,7 +134,7 @@ export async function createGradleWrapper(tree: Tree, options: NormalizedSchema)
   tree.write('gradle/wrapper/gradle-wrapper.properties', gradleWrapperProperties);
 }
 
-export async function execGradleWrapper(options: NormalizedSchema): Promise<void> {
+async function execGradleWrapper(options: NormalizedSchema): Promise<void> {
   logger.info('Creating Gradle wrapper with installed Gradle');
 
   let gradleWrapperCommand = 'gradle wrapper';
@@ -146,7 +147,7 @@ export async function execGradleWrapper(options: NormalizedSchema): Promise<void
   logger.error(stderr);
 }
 
-export async function downloadGradleWrapper(
+async function downloadGradleWrapper(
   options: NormalizedSchema,
 ): Promise<{ gradlew: Buffer; gradlewBat: Buffer; gradleWrapperJar: Buffer; gradleWrapperProperties: Buffer }> {
   try {
@@ -174,7 +175,7 @@ export async function downloadGradleWrapper(
   }
 }
 
-export async function getTag(options: NormalizedSchema): Promise<string> {
+async function getTag(options: NormalizedSchema): Promise<string> {
   const octokit = new Octokit({
     userAgent: '@nxx/nx-gradle',
     log: {
@@ -193,7 +194,7 @@ export async function getTag(options: NormalizedSchema): Promise<string> {
   return octokit.rest.repos.getLatestRelease({ owner: 'gradle', repo: 'gradle' }).then(({ data }) => data.tag_name);
 }
 
-export function downloadFile(url: string): Promise<Buffer> {
+function downloadFile(url: string): Promise<Buffer> {
   return fetch(url, { headers: { 'User-Agent': '@nxx/nx-gradle' } })
     .then((res) => res.arrayBuffer())
     .then((buffer) => Buffer.from(buffer));
