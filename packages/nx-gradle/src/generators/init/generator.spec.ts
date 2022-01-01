@@ -156,16 +156,20 @@ describe('gradleInitGenerator', () => {
         await gradleInitGenerator(tree, { dsl, useInstalledGradle: false });
 
         const hasSettings = tree.exists(`settings.gradle${extension}`);
+        const hasProperties = tree.exists('gradle.properties');
 
         expect(hasSettings).toBe(true);
+        expect(hasProperties).toBe(true);
       });
 
       it('should add Gradle settings file with custom rootProjectName', async () => {
         await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false, rootProjectName: 'test' });
 
         const hasSettings = tree.exists(`settings.gradle.kts`);
+        const hasProperties = tree.exists('gradle.properties');
 
         expect(hasSettings).toBe(true);
+        expect(hasProperties).toBe(true);
 
         const settings = tree.read('settings.gradle.kts', 'utf-8');
 
