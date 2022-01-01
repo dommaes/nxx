@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "NxGradleInit",
+  "title": "Init",
+  "type": "object",
+  "properties": {
+    "dsl": {
+      "description": "Sets the DSL",
+      "type": "string",
+      "enum": ["kotlin", "groovy"],
+      "default": "kotlin",
+      "x-prompt": {
+        "message": "The DSL to use for Gradle configuration.",
+        "type": "list",
+        "items": [
+          {
+            "value": "kotlin",
+            "label": "Kotlin"
+          },
+          {
+            "value": "groovy",
+            "label": "Groovy"
+          }
+        ]
+      }
+    },
+    "rootProjectName": {
+      "description": "The Gradle root project name.",
+      "type": "string",
+      "pattern": "^[a-zA-Z].*"
+    },
+    "useInstalledGradle": {
+      "description": "Use Gradle installed on this machine",
+      "type": "boolean",
+      "default": false
+    },
+    "gradleVersion": {
+      "description": "The Gradle version",
+      "type": "string",
+      "pattern": "^\\d\\.\\d\\.\\d$"
+    }
+  },
+  "required": ["dsl"]
+}
