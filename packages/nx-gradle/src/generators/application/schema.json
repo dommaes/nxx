@@ -1,10 +1,29 @@
 {
   "$schema": "http://json-schema.org/schema",
   "cli": "nx",
-  "$id": "Init",
-  "title": "Init",
+  "$id": "Application",
+  "title": "Application",
   "type": "object",
   "properties": {
+    "name": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the project (used for linting)",
+      "alias": "t"
+    },
+    "directory": {
+      "type": "string",
+      "description": "A directory where the project is placed",
+      "alias": "d"
+    },
     "dsl": {
       "description": "Sets the DSL",
       "type": "string",
@@ -46,5 +65,5 @@
       "default": false
     }
   },
-  "required": ["dsl"]
+  "required": ["name", "dsl"]
 }

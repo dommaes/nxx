@@ -1,0 +1,7 @@
+<% if(dsl === 'groovy') { %>final<% } else { %>val<% } %> projectDir = project.path.replace(<%- quote %>:<%- quote %>, <%- quote %>/<%- quote %>)
+buildDir = file("$<% if(dsl === 'kotlin') { %>{<% } %>rootDir.absolutePath<% if(dsl === 'kotlin') { %>}<% } %>/dist/$projectDir")
+<% if(dsl === 'groovy') { %>final<% } else { %>val<% } %> coverageDir = file("$<% if(dsl === 'kotlin') { %>{<% } %>rootDir.absolutePath<% if(dsl === 'kotlin') { %>}<% } %>/coverage/$projectDir")
+
+dependencyLocking {
+    lockAllConfigurations()
+}

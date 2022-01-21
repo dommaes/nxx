@@ -1,13 +1,14 @@
 import { exec } from 'child_process';
 import { Readable } from 'stream';
 
-import { Tree, readWorkspaceConfiguration } from '@nrwl/devkit';
+import { readWorkspaceConfiguration, Tree } from '@nrwl/devkit';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
 import fetch from 'node-fetch';
 
-import gradleInitGenerator from './generator';
-import { Dsl } from './lib/types';
+import { Dsl } from '../lib/types';
+
+import generator from './generator';
 
 const { Response } = jest.requireActual('node-fetch');
 
@@ -62,10 +63,10 @@ describe('gradleInitGenerator', () => {
   });
 
   describe('generator defaults', () => {
-    it.each([{ dsl: 'kotlin' as Dsl }, { dsl: 'groovy' as Dsl }])(
+    it.each([{ dsl: Dsl.KOTLIN }, { dsl: Dsl.GROOVY }])(
       'should set generator defaults to $dsl DSL in workspace config',
       async ({ dsl }) => {
-        await gradleInitGenerator(tree, { dsl, useInstalledGradle: false });
+        await generator(tree, { dsl, useInstalledGradle: false, skipFormat: true });
 
         const workspace = readWorkspaceConfiguration(tree);
 
@@ -79,7 +80,7 @@ describe('gradleInitGenerator', () => {
   });
 
   it('should add plugin to workspace config', async () => {
-    await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false });
+    await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: false, skipFormat: true });
 
     const workspace = readWorkspaceConfiguration(tree);
 
@@ -88,7 +89,7 @@ describe('gradleInitGenerator', () => {
   });
 
   it('should set default collection in workspace config', async () => {
-    await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false });
+    await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: false, skipFormat: true });
 
     const workspace = readWorkspaceConfiguration(tree);
 
@@ -100,7 +101,7 @@ describe('gradleInitGenerator', () => {
     it('should add ".gradle" and "!gradle-wrapper.jar" to .gitignore', async () => {
       tree.write('.gitignore', '');
 
-      await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false });
+      await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: false, skipFormat: true });
 
       const gitignore = tree.read('.gitignore', 'utf-8');
 
@@ -111,7 +112,7 @@ describe('gradleInitGenerator', () => {
     it('should not add ".gradle" and "!gradle-wrapper.jar" to .gitignore if they are already defined', async () => {
       tree.write('.gitignore', '.gradle\n!gradle-wrapper.jar');
 
-      await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false });
+      await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: false, skipFormat: true });
 
       const gitignore = tree.read('.gitignore', 'utf-8');
 
@@ -122,13 +123,13 @@ describe('gradleInitGenerator', () => {
 
   describe('.editorconfig', () => {
     describe.each([
-      { dsl: 'kotlin' as Dsl, dslSectionMarker: '[*.gradle.kts]' },
-      { dsl: 'groovy' as Dsl, dslSectionMarker: '[*.gradle]' },
+      { dsl: Dsl.KOTLIN, dslSectionMarker: '[*.gradle.kts]' },
+      { dsl: Dsl.GROOVY, dslSectionMarker: '[*.gradle]' },
     ])('$dsl DSL', ({ dsl, dslSectionMarker }) => {
       it('should add "indent_size = 4" to .editorconfig', async () => {
         tree.write('.editorconfig', '');
 
-        await gradleInitGenerator(tree, { dsl, useInstalledGradle: false });
+        await generator(tree, { dsl, useInstalledGradle: false, skipFormat: true });
 
         const editorconfig = tree.read('.editorconfig', 'utf-8');
 
@@ -138,7 +139,7 @@ describe('gradleInitGenerator', () => {
       it('should not add "indent_size = 4" to .editorconfig if DSL section is already defined', async () => {
         tree.write('.editorconfig', dslSectionMarker);
 
-        await gradleInitGenerator(tree, { dsl, useInstalledGradle: false });
+        await generator(tree, { dsl, useInstalledGradle: false, skipFormat: true });
 
         const editorconfig = tree.read('.editorconfig', 'utf-8');
 
@@ -150,10 +151,10 @@ describe('gradleInitGenerator', () => {
   describe('files', () => {
     describe('Gradle settings file', () => {
       it.each([
-        { dsl: 'kotlin' as Dsl, extension: '.kts' },
-        { dsl: 'groovy' as Dsl, extension: '' },
+        { dsl: Dsl.KOTLIN, extension: '.kts' },
+        { dsl: Dsl.GROOVY, extension: '' },
       ])('should add Gradle settings file with $dsl DSL', async ({ dsl, extension }) => {
-        await gradleInitGenerator(tree, { dsl, useInstalledGradle: false });
+        await generator(tree, { dsl, useInstalledGradle: false, skipFormat: true });
 
         const hasSettings = tree.exists(`settings.gradle${extension}`);
         const hasProperties = tree.exists('gradle.properties');
@@ -163,7 +164,12 @@ describe('gradleInitGenerator', () => {
       });
 
       it('should add Gradle settings file with custom rootProjectName', async () => {
-        await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false, rootProjectName: 'test' });
+        await generator(tree, {
+          dsl: Dsl.KOTLIN,
+          useInstalledGradle: false,
+          skipFormat: true,
+          rootProjectName: 'test',
+        });
 
         const hasSettings = tree.exists(`settings.gradle.kts`);
         const hasProperties = tree.exists('gradle.properties');
@@ -185,7 +191,7 @@ describe('gradleInitGenerator', () => {
         });
 
         it('should download and add Gradle wrapper files', async () => {
-          await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false });
+          await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: false, skipFormat: true });
 
           expect(mockOctokit.rest.repos.getLatestRelease).toHaveBeenCalledWith({ owner: 'gradle', repo: 'gradle' });
           expect(mockOctokit.rest.repos.getReleaseByTag).not.toHaveBeenCalled();
@@ -202,7 +208,12 @@ describe('gradleInitGenerator', () => {
         });
 
         it('should download and add Gradle wrapper files with specified version', async () => {
-          await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: false, gradleVersion: '7.3.3' });
+          await generator(tree, {
+            dsl: Dsl.KOTLIN,
+            useInstalledGradle: false,
+            skipFormat: true,
+            gradleVersion: '7.3.3',
+          });
 
           expect(mockOctokit.rest.repos.getLatestRelease).not.toHaveBeenCalled();
           expect(mockOctokit.rest.repos.getReleaseByTag).toHaveBeenCalledWith({
@@ -233,17 +244,25 @@ describe('gradleInitGenerator', () => {
         });
 
         it('should execute "gradle wrapper"', async () => {
-          await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: true });
+          await generator(tree, { dsl: Dsl.KOTLIN, useInstalledGradle: true, skipFormat: true });
 
           expect(exec).toHaveBeenCalledWith('gradle wrapper', expect.any(Function));
         });
 
         it('should execute "gradle wrapper" with specified version', async () => {
-          await gradleInitGenerator(tree, { dsl: 'kotlin', useInstalledGradle: true, gradleVersion: '7.3.3' });
+          await generator(tree, {
+            dsl: Dsl.KOTLIN,
+            useInstalledGradle: true,
+            skipFormat: true,
+            gradleVersion: '7.3.3',
+          });
 
           expect(exec).toHaveBeenCalledWith('gradle wrapper --gradle-version 7.3.3', expect.any(Function));
         });
       });
     });
   });
+
+  // TODO: skipFormat
+  // TODO: skip settings.gradle and gradle wrapper if they already exist
 });

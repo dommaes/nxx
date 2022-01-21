@@ -15,10 +15,14 @@ import { setDefaultCollection } from '@nrwl/workspace/src/utilities/set-default-
 import { Octokit } from '@octokit/rest';
 import fetch from 'node-fetch';
 
+import { gradleFileOptions } from '../lib/gradle-file-options';
+import { Dsl } from '../lib/types';
+
 import { InitGeneratorSchema } from './schema';
 
 export interface NormalizedSchema extends InitGeneratorSchema {
-  gradleFileExtension: string;
+  gradleFileExt: string;
+  quote: string;
   rootProjectName: string;
 }
 
@@ -31,16 +35,20 @@ export default async function gradleInitGenerator(tree: Tree, options: InitGener
 
   await addFiles(tree, normalizedOptions);
 
-  await formatFiles(tree);
+  if (!normalizedOptions.skipFormat) {
+    await formatFiles(tree);
+  }
 }
 
 function normalizeOptions(tree: Tree, options: InitGeneratorSchema): NormalizedSchema {
-  const gradleFileExtension = options.dsl === 'kotlin' ? '.kts' : '';
+  const dsl = options.dsl as Dsl;
+  const gradleFileOpts = gradleFileOptions(dsl);
   const rootProjectName = options.rootProjectName ?? tree.root.substring(tree.root.lastIndexOf('/') + 1);
 
   return {
     ...options,
-    gradleFileExtension,
+    ...gradleFileOpts,
+    dsl,
     rootProjectName,
   };
 }
@@ -97,7 +105,7 @@ function updateEditorConfig(tree: Tree, options: NormalizedSchema): void {
 
   let editorconfig = tree.read('.editorconfig', 'utf-8');
 
-  const gradleDslSectionMarker = options.dsl === 'kotlin' ? '[*.gradle.kts]' : '[*.gradle]';
+  const gradleDslSectionMarker = options.dsl === Dsl.KOTLIN ? '[*.gradle.kts]' : '[*.gradle]';
   const hasGradleDslSection = editorconfig.includes(gradleDslSectionMarker);
 
   if (!hasGradleDslSection) {
@@ -110,14 +118,18 @@ function updateEditorConfig(tree: Tree, options: NormalizedSchema): void {
 async function addFiles(tree: Tree, options: NormalizedSchema): Promise<void> {
   const templateOptions = {
     ...options,
-    quote: options.dsl === 'kotlin' ? '"' : "'",
     offsetFromRoot: offsetFromRoot(tree.root),
     template: '',
   };
 
-  generateFiles(tree, join(__dirname, 'files'), '', templateOptions);
+  const settingsFile = `settings.gradle${options.gradleFileExt}`;
+  if (!tree.exists(settingsFile)) {
+    generateFiles(tree, join(__dirname, 'files'), '', templateOptions);
+  }
 
-  await createGradleWrapper(tree, options);
+  if (!['gradlew', 'gradlew.bat'].every((file) => tree.exists(file))) {
+    await createGradleWrapper(tree, options);
+  }
 }
 
 async function createGradleWrapper(tree: Tree, options: NormalizedSchema): Promise<void> {

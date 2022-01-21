@@ -1,0 +1,3 @@
+rootProject.name = <%- quote %><%= rootProjectName %><%- quote %>
+
+enableFeaturePreview<% if(dsl === 'kotlin') { %>(<% } else { %> <% } %><%- quote %>VERSION_CATALOGS<%- quote %><% if(dsl === 'kotlin') { %>)<% } %>
