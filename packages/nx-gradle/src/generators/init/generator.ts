@@ -26,6 +26,13 @@ export interface NormalizedSchema extends InitGeneratorSchema {
   rootProjectName: string;
 }
 
+const gradleWrapperFiles = {
+  gradlew: 'gradlew',
+  gradlewBat: 'gradlew.bat',
+  gradleWrapperJar: 'gradle/wrapper/gradle-wrapper.jar',
+  gradleWrapperProperties: 'gradle/wrapper/gradle-wrapper.properties',
+};
+
 export default async function gradleInitGenerator(tree: Tree, options: InitGeneratorSchema): Promise<void> {
   const normalizedOptions = normalizeOptions(tree, options);
 
@@ -127,7 +134,7 @@ async function addFiles(tree: Tree, options: NormalizedSchema): Promise<void> {
     generateFiles(tree, join(__dirname, 'files'), '', templateOptions);
   }
 
-  if (!['gradlew', 'gradlew.bat'].every((file) => tree.exists(file))) {
+  if (!Object.values(gradleWrapperFiles).every((file) => tree.exists(file))) {
     await createGradleWrapper(tree, options);
   }
 }
@@ -140,10 +147,10 @@ async function createGradleWrapper(tree: Tree, options: NormalizedSchema): Promi
 
   const { gradlew, gradlewBat, gradleWrapperJar, gradleWrapperProperties } = await downloadGradleWrapper(options);
 
-  tree.write('gradlew', gradlew, { mode: '775' });
-  tree.write('gradlew.bat', gradlewBat);
-  tree.write('gradle/wrapper/gradle-wrapper.jar', gradleWrapperJar);
-  tree.write('gradle/wrapper/gradle-wrapper.properties', gradleWrapperProperties);
+  tree.write(gradleWrapperFiles.gradlew, gradlew, { mode: '775' });
+  tree.write(gradleWrapperFiles.gradlewBat, gradlewBat);
+  tree.write(gradleWrapperFiles.gradleWrapperJar, gradleWrapperJar);
+  tree.write(gradleWrapperFiles.gradleWrapperProperties, gradleWrapperProperties);
 }
 
 async function execGradleWrapper(options: NormalizedSchema): Promise<void> {

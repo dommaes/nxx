@@ -24,29 +24,41 @@ describe('nx-gradle e2e', () => {
   it.only('should', async () => {
     ensureNxProject('@nxx/nx-gradle', 'dist/packages/nx-gradle');
 
-    const name1 = uniq('proj');
-    console.log(name1);
-    await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name1}`);
-    console.log(`settings ${name1}:\n${readFile('settings.gradle.kts')}`);
-    console.log(`build ${name1}:\n${readFile(`apps/${name1}/build.gradle.kts`)}`);
+    const name = 'proj';
+    console.log(name);
+    await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name}`);
+    console.log(`settings ${name}:\n${readFile('settings.gradle.kts')}`);
+    console.log(`build ${name}:\n${readFile(`apps/${name}/build.gradle.kts`)}`);
 
-    const name2 = uniq('proj');
-    console.log(name2);
-    await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name2}`);
-    console.log(`settings ${name2}:\n${readFile('settings.gradle.kts')}`);
-    console.log(`build ${name2}:\n${readFile(`apps/${name2}/build.gradle.kts`)}`);
+    // const name = 'proj';
+    // console.log(name);
+    // await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name} --dsl=groovy`);
+    // console.log(`settings ${name}:\n${readFile('settings.gradle')}`);
+    // console.log(`build ${name}:\n${readFile(`apps/${name}/build.gradle`)}`);
 
-    const name3 = uniq('proj');
-    console.log(name3);
-    await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name3} --dsl=groovy`);
-    console.log(`settings ${name3}:\n${readFile('settings.gradle')}`);
-    console.log(`build ${name3}:\n${readFile(`apps/${name3}/build.gradle`)}`);
-
-    const name4 = uniq('proj');
-    console.log(name4);
-    await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name4} --dsl=groovy`);
-    console.log(`settings ${name4}:\n${readFile('settings.gradle')}`);
-    console.log(`build ${name4}:\n${readFile(`apps/${name4}/build.gradle`)}`);
+    // const name1 = uniq('proj');
+    // console.log(name1);
+    // await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name1}`);
+    // console.log(`settings ${name1}:\n${readFile('settings.gradle.kts')}`);
+    // console.log(`build ${name1}:\n${readFile(`apps/${name1}/build.gradle.kts`)}`);
+    //
+    // const name2 = uniq('proj');
+    // console.log(name2);
+    // await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name2}`);
+    // console.log(`settings ${name2}:\n${readFile('settings.gradle.kts')}`);
+    // console.log(`build ${name2}:\n${readFile(`apps/${name2}/build.gradle.kts`)}`);
+    //
+    // const name3 = uniq('proj');
+    // console.log(name3);
+    // await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name3} --dsl=groovy`);
+    // console.log(`settings ${name3}:\n${readFile('settings.gradle')}`);
+    // console.log(`build ${name3}:\n${readFile(`apps/${name3}/build.gradle`)}`);
+    //
+    // const name4 = uniq('proj');
+    // console.log(name4);
+    // await runNxCommandAsync(`generate @nxx/nx-gradle:application ${name4} --dsl=groovy`);
+    // console.log(`settings ${name4}:\n${readFile('settings.gradle')}`);
+    // console.log(`build ${name4}:\n${readFile(`apps/${name4}/build.gradle`)}`);
   });
 
   it('should create nx-gradle', async () => {
